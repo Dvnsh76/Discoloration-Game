@@ -1,10 +1,71 @@
 import tkinter as tk
 from tkinter import messagebox
+from collections import deque
+import copy
+import time
 
 # Game State Variables
 level = 1
 moves = 0
 grid = []
+
+# BFS Solver
+def bfs_solver(initial_grid):
+    size = len(initial_grid)
+    initial_state = (tuple(tuple(row) for row in initial_grid), [])  # Immutable state
+    queue = deque([initial_state])
+    visited = set()
+    visited.add(initial_state[0])
+
+    # Toggle function
+    def toggle(grid, row, col):
+        new_grid = copy.deepcopy(grid)
+        for r, c in [(row, col), (row-1, col), (row+1, col), (row, col-1), (row, col+1)]:
+            if 0 <= r < size and 0 <= c < size:
+                new_grid[r][c] = 1 - new_grid[r][c]
+        return new_grid
+
+    # BFS loop
+    while queue:
+        current_grid, moves = queue.popleft()
+
+        # Check if solved
+        if all(cell == 1 for row in current_grid for cell in row):
+            return moves
+
+        # Generate neighbors
+        for row in range(size):
+            for col in range(size):
+                new_grid = toggle(current_grid, row, col)
+                new_state = (tuple(tuple(row) for row in new_grid), moves + [(row, col)])
+                if new_state[0] not in visited:
+                    visited.add(new_state[0])
+                    queue.append(new_state)
+
+    return None  # Shouldn't reach here if the grid is solvable
+
+# Solve Level Function
+def solve_level():
+    global grid
+
+    # Find the solution
+    solution_moves = bfs_solver(grid)
+    if solution_moves is None:
+        messagebox.showerror("Error", "No solution found.")
+        return
+
+    # Animate the solution
+    for index, move in enumerate(solution_moves):
+        row, col = move
+        root.after(500 * index, lambda r=row, c=col: auto_click(r, c))
+
+# Automated click function
+def auto_click(row, col):
+    toggle_cell(row, col)
+    update_grid_ui()
+    if is_level_solved():
+        messagebox.showinfo("Level Solved!", f"Solved automatically in {len(moves)} moves!")
+        next_level()
 
 # Initialize the game
 def initialize_grid():
@@ -64,10 +125,6 @@ def update_grid_ui():
 # Update the level display
 def update_level_display():
     level_label.config(text=f"Level: {level}")
-
-# Initialize the solver (to be implemented later)
-def solve_level():
-    messagebox.showinfo("Solver", "Solver feature is not implemented yet!")
 
 # Create the main window
 root = tk.Tk()
