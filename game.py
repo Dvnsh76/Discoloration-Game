@@ -19,11 +19,11 @@ def bfs_solver(initial_grid):
 
     # Toggle function
     def toggle(grid, row, col):
-        new_grid = copy.deepcopy(grid)
+        new_grid = [list(r) for r in grid]  # Convert to mutable list
         for r, c in [(row, col), (row-1, col), (row+1, col), (row, col-1), (row, col+1)]:
             if 0 <= r < size and 0 <= c < size:
                 new_grid[r][c] = 1 - new_grid[r][c]
-        return new_grid
+        return tuple(tuple(r) for r in new_grid)  # Convert back to immutable tuple
 
     # BFS loop
     while queue:
@@ -37,12 +37,13 @@ def bfs_solver(initial_grid):
         for row in range(size):
             for col in range(size):
                 new_grid = toggle(current_grid, row, col)
-                new_state = (tuple(tuple(row) for row in new_grid), moves + [(row, col)])
+                new_state = (new_grid, moves + [(row, col)])
                 if new_state[0] not in visited:
                     visited.add(new_state[0])
                     queue.append(new_state)
 
     return None  # Shouldn't reach here if the grid is solvable
+
 
 # Solve Level Function
 def solve_level():
