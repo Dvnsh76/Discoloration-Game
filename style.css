@@ -1,54 +1,85 @@
+/* Global Styles */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    background-color: #f0f0f0;
     margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Start Page */
+#start-page {
+    text-align: center;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-    margin-top: 20px;
+    color: #333;
 }
 
-#game-container {
-    display: inline-block;
-    margin-top: 30px;
-}
-
-#grid {
+/* Grid Container */
+#grid-container {
     display: grid;
-    margin-top: 20px;
-    gap: 1px;  /* Adjust the value to control spacing */
-    justify-content: center;
-    max-width: 400px; /* Adjust max-width for better scaling */
-    margin: 0 auto;  /* Center the grid */
-  }
+    margin: 20px auto;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    background-color: #bdbdbd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    gap: 5px; /* Adds space between cells */
+    width: max-content; /* Ensures the grid container adjusts to the size of cells */
+    box-sizing: border-box;
+}
 
-  .cell {
-    width: 100px;
-    height: 100px;
+/* Cell Styles */
+.cell {
+    width: 50px;
+    height: 50px;
     background-color: grey;
-    border: 1px solid #000; /* Reduce border size */
     cursor: pointer;
-  }
+    border: 1px solid #888; /* Grey border between cells */
+    transition: background-color 0.3s, transform 0.15s; /* Reduced transform duration */
+}
+
+.cell:hover {
+    transform: scale(1.05); /* Reduced enlarge effect on hover */
+}
 
 .cell.green {
-    background-color: green;
+    background-color: rgb(5, 181, 5);
 }
 
-#move-counter {
-    margin-top: 20px;
-    font-size: 18px;
-}
-
-#restart {
-    margin-top: 20px;
+/* Button Styles */
+button {
+    margin: 10px;
     padding: 10px 20px;
     font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background-color: #007bff;
     cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Move Counter and Level Display */
+#move-counter {
+    font-size: 18px;
+    color: #555;
 }
 
 #level-display {
+    font-size: 24px;
+    color: #333;
     margin-bottom: 10px;
-    font-size: 18px;
 }

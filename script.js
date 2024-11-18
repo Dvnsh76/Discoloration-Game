@@ -1,119 +1,106 @@
-let currentLevel = 1;
-let maxLevel = 5;  // 2x2 to 7x7 grid
-let gridSize = 2;  // Starts with level 1 (2x2)
 let grid = [];
-let moveCount = 0;
+let level = 1;
+let moves = 0;
+const moveCounter = document.getElementById('move-counter');
+const gridContainer = document.getElementById('grid-container');
+const restartButton = document.getElementById('restart-button');
+const solveButton = document.getElementById('solve-button');
+const levelDisplay = document.getElementById('level-display'); // Reference to the level display
+const startPage = document.getElementById('start-page');
+const gamePage = document.getElementById('game');
+const startButton = document.getElementById('start-button');
 
-const gridContainer = document.getElementById('grid');
-const moveCountDisplay = document.getElementById('move-count');
-const levelDisplay = document.getElementById('current-level');
-const restartButton = document.getElementById('restart');
+// Start game button event
+startButton.addEventListener('click', () => {
+    startPage.style.display = 'none';
+    gamePage.style.display = 'block';
+    initializeGrid();
+});
 
-// Initialize the game with the current level
-function initGame() {
-    gridContainer.innerHTML = '';  // Clear previous grid
-    moveCount = 0;
-    moveCountDisplay.textContent = moveCount;
-    levelDisplay.textContent = currentLevel;
-
-    // Set grid size based on the current level
-    gridSize = currentLevel + 1;  // Level 1 -> 2x2, Level 2 -> 3x3, etc.
-    gridContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    gridContainer.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-
-    // Create a new grid
-    grid = [];
-    for (let i = 0; i < gridSize; i++) {
-        grid[i] = [];
-        for (let j = 0; j < gridSize; j++) {
-            const cell = document.createElement('div');
-            cell.classList.add('cell');
-            cell.dataset.row = i;
-            cell.dataset.col = j;
-            cell.addEventListener('click', () => handleClick(i, j));
-            grid[i][j] = 0;  // Initial state is grey (0)
-            gridContainer.appendChild(cell);
-        }
-    }
+// Initialize grid based on level
+function initializeGrid() {
+    const size = level + 1; // level 1 -> 2x2, level 2 -> 3x3, etc.
+    grid = Array.from({ length: size }, () => Array(size).fill(0)); // 0 for grey, 1 for green
+    moves = 0;
+    updateGridUI();
+    updateLevelDisplay(); // Update level display
 }
 
-// Handle the click on a cell
-function handleClick(row, col) {
-    toggleCell(row, col);
-    toggleCell(row - 1, col);  // Above
-    toggleCell(row + 1, col);  // Below
-    toggleCell(row, col - 1);  // Left
-    toggleCell(row, col + 1);  // Right
+// Update the grid UI
+function updateGridUI() {
+    gridContainer.innerHTML = '';
+    const size = level + 1; // Determine the size of the grid
+    gridContainer.style.gridTemplateColumns = `repeat(${size}, 50px)`; // Set the number of columns
 
-    moveCount++;
-    moveCountDisplay.textContent = moveCount;
-
-    // Check if all cells are green
-    checkWin();
-}
-
-// Toggle cell state (grey to green, green to grey)
-function toggleCell(row, col) {
-    if (row >= 0 && row < gridSize && col >= 0 && col < gridSize) {
-        const cell = document.querySelector(`.cell[data-row='${row}'][data-col='${col}']`);
-        grid[row][col] = 1 - grid[row][col];  // Flip between 0 and 1
-        cell.classList.toggle('green');
-    }
-}
-
-// Check if the player has won (all cells green)
-function checkWin() {
-    const allGreen = grid.every(row => row.every(cell => cell === 1));
-    if (allGreen) {
-        setTimeout(() => {
-            alert(`Level ${currentLevel} completed in ${moveCount} moves!`);
-            nextLevel();
-        }, 100);
-    }
-}
-
-// Move to the next level
-function nextLevel() {
-    if (currentLevel < maxLevel) {
-        currentLevel++;
-        initGame();
-    } else {
-        alert("Congratulations! You've completed all levels!");
-    }
-}
-
-// Restart the current level
-restartButton.addEventListener('click', initGame);
-
-// Initialize the game for the first time
-initGame();
-
-
-document.getElementById('solve-game').addEventListener('click', () => {
-    const currentGrid = getCurrentGridState();  // Function to get the current grid state
-    const solution = bfsSolver(currentGrid);
-
-    if (solution.length > 0) {
-        alert(`Solution found! Applying solution...`);
-        solution.forEach(move => {
-            handleClick(move.row, move.col);  // Simulate each click
+    grid.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+            const cellDiv = document.createElement('div');
+            cellDiv.className = 'cell' + (cell === 1 ? ' green' : '');
+            cellDiv.addEventListener('click', () => cellClick(rowIndex, colIndex));
+            gridContainer.appendChild(cellDiv);
         });
+    });
+    moveCounter.textContent = `Moves: ${moves}`;
+}
+
+// Update level display
+function updateLevelDisplay() {
+    levelDisplay.textContent = `Level: ${level}`; // Update the level display text
+}
+
+// Handle cell click
+function cellClick(row, col) {
+    const size = level + 1;
+
+    // Function to toggle the state of a cell
+    const toggleCell = (r, c) => {
+        if (r >= 0 && r < size && c >= 0 && c < size) {
+            grid[r][c] = grid[r][c] === 0 ? 1 : 0; // Toggle state
+        }
+    };
+
+    // Toggle clicked cell and its neighbors
+    toggleCell(row, col); // Toggle itself
+    toggleCell(row - 1, col); // Up
+    toggleCell(row + 1, col); // Down
+    toggleCell(row, col - 1); // Left
+    toggleCell(row, col + 1); // Right
+
+    moves++;
+    updateGridUI();
+
+    // Check if the level is solved after updating the UI
+    if (isLevelSolved()) {
+        // Show the final state before moving to the next level
+        setTimeout(() => {
+            alert(`Level Solved in ${moves} moves!`);
+            level++;
+            initializeGrid();
+        }, 100); // Short delay to allow the final state to render
+    }
+}
+
+// Check if the level is solved
+function isLevelSolved() {
+    return grid.flat().every(cell => cell === 1); // Check if all cells are green
+}
+
+// Restart level
+restartButton.addEventListener('click', () => {
+    initializeGrid();
+});
+
+// Solve level
+solveButton.addEventListener('click', () => {
+    const levelInput = prompt("Enter Level (1-10):");
+    const levelNum = parseInt(levelInput, 10);
+    if (levelNum >= 1 && levelNum <= 10) {
+        alert("Solver feature is not implemented yet. You are currently at Level: " + level);
+        // Do not change the level, just notify the user.
     } else {
-        alert("No solution found!");
+        alert("Please enter a valid level number between 1 and 10.");
     }
 });
 
-// Function to get the current grid state (convert the DOM to the grid array)
-function getCurrentGridState() {
-    const grid = [];
-    const cells = document.querySelectorAll('.cell');
-    let gridSize = Math.sqrt(cells.length);  // Calculate grid size dynamically
-    for (let i = 0; i < gridSize; i++) {
-        grid[i] = [];
-        for (let j = 0; j < gridSize; j++) {
-            const cell = cells[i * gridSize + j];
-            grid[i][j] = cell.classList.contains('green') ? 1 : 0;
-        }
-    }
-    return grid;
-}
+// Start the game
+initializeGrid();
