@@ -54,27 +54,30 @@ def solve_level():
         messagebox.showinfo("No Solution", "This grid cannot be solved!")
         return
 
-    # Reset moves counter
-    moves = 0
+    moves = 0  # Reset moves counter
 
     # Perform each move with a delay
     for index, (row, col) in enumerate(solution_moves):
-        root.after(500 * index, lambda r=row, c=col: auto_click(r, c, final=(index == len(solution_moves) - 1)))
+        root.after(
+            500 * index, 
+            lambda r=row, c=col, final=(index == len(solution_moves) - 1): auto_click(r, c, final)
+        )
+
 
 
 # Automated click function
 def auto_click(row, col, final=False):
     global moves
 
-    # Simulate a click
     toggle_cell(row, col)
     moves += 1
     update_grid_ui()
 
-    # If it's the last move, check and display success message
     if final:
+        # Show success message and move to the next level
         messagebox.showinfo("Level Solved!", f"Solved automatically in {moves} moves!")
-        next_level()  # Move to the next level
+        next_level()  # Move to the next level only once
+
 
 # Initialize the game
 def initialize_grid():
