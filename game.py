@@ -1,15 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox
+import heapq
 from collections import deque
-import copy
-import time
 
 # Game State Variables
 level = 1
 moves = 0
 grid = []
 
-# BFS Solver
+# BFS Solver for Levels 1, 2, and 3
 def bfs_solver(initial_grid):
     size = len(initial_grid)
     initial_state = (tuple(tuple(row) for row in initial_grid), [])  # Immutable state
@@ -45,11 +44,64 @@ def bfs_solver(initial_grid):
     return None  # Shouldn't reach here if the grid is solvable
 
 
+# A* Solver for Level 4 (Optimized)
+def a_star_solver(initial_grid):
+    size = len(initial_grid)
+    initial_state = (tuple(tuple(row) for row in initial_grid), 0, [])  # Immutable state
+    goal_state = tuple([tuple([1] * size)] * size)
+    
+    # Priority Queue using heapq for better performance
+    pq = []
+    heapq.heappush(pq, (0, initial_state))  # (heuristic, state)
+    visited = set()
+    visited.add(initial_state[0])
+
+    # Toggle function
+    def toggle(grid, row, col):
+        new_grid = [list(r) for r in grid]  # Convert to mutable list
+        for r, c in [(row, col), (row-1, col), (row+1, col), (row, col-1), (row, col+1)]:
+            if 0 <= r < size and 0 <= c < size:
+                new_grid[r][c] = 1 - new_grid[r][c]
+        return tuple(tuple(r) for r in new_grid)  # Convert back to immutable tuple
+
+    # Heuristic function (optimizing heuristic)
+    def heuristic(grid):
+        # Count the number of cells that are in the wrong state
+        return sum(1 for row in grid for cell in row if cell == 0)
+
+    while pq:
+        _, (current_grid, current_cost, moves) = heapq.heappop(pq)
+
+        # Check if solved
+        if current_grid == goal_state:
+            return moves
+
+        # Generate neighbors
+        for row in range(size):
+            for col in range(size):
+                new_grid = toggle(current_grid, row, col)
+                new_cost = current_cost + 1
+                new_moves = moves + [(row, col)]
+                
+                # Skip revisiting already visited grids
+                if new_grid not in visited:
+                    visited.add(new_grid)
+                    heapq.heappush(pq, (new_cost + heuristic(new_grid), (new_grid, new_cost, new_moves)))
+
+    return None  # Shouldn't reach here if the grid is solvable
+
+
 # Solve Level Function
 def solve_level():
     global grid, moves
 
-    solution_moves = bfs_solver(grid)
+    if level <= 3:
+        solution_moves = bfs_solver(grid)
+    elif level == 4:
+        solution_moves = a_star_solver(grid)
+    else:
+        solution_moves = None  # Skip level 5
+
     if solution_moves is None:
         messagebox.showinfo("No Solution", "This grid cannot be solved!")
         return
@@ -62,7 +114,6 @@ def solve_level():
             500 * index, 
             lambda r=row, c=col, final=(index == len(solution_moves) - 1): auto_click(r, c, final)
         )
-
 
 
 # Automated click function
@@ -88,6 +139,7 @@ def initialize_grid():
     update_grid_ui()
     update_level_display()
 
+
 # Toggle the state of a cell and its neighbors
 def toggle_cell(row, col):
     size = len(grid)
@@ -95,9 +147,11 @@ def toggle_cell(row, col):
         if 0 <= r < size and 0 <= c < size:
             grid[r][c] = 1 - grid[r][c]  # Toggle state
 
+
 # Check if the level is solved
 def is_level_solved():
     return all(cell == 1 for row in grid for cell in row)
+
 
 # Handle cell click
 def cell_click(row, col):
@@ -109,15 +163,22 @@ def cell_click(row, col):
         messagebox.showinfo("Level Solved!", f"You solved level {level} in {moves} moves!")
         next_level()
 
+
 # Move to the next level
 def next_level():
     global level
     level += 1
-    initialize_grid()
+    if level > 4:
+        messagebox.showinfo("Congratulations!", "You have completed all levels!")
+        root.quit()
+    else:
+        initialize_grid()
+
 
 # Restart the current level
 def restart_level():
     initialize_grid()
+
 
 # Update the UI grid
 def update_grid_ui():
@@ -134,9 +195,11 @@ def update_grid_ui():
 
     move_label.config(text=f"Moves: {moves}")
 
+
 # Update the level display
 def update_level_display():
     level_label.config(text=f"Level: {level}")
+
 
 # Create the main window
 root = tk.Tk()
