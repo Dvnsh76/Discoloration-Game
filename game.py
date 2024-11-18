@@ -99,8 +99,6 @@ def solve_level():
         solution_moves = bfs_solver(grid)
     elif level == 4:
         solution_moves = a_star_solver(grid)
-    else:
-        solution_moves = None  # Skip level 5
 
     if solution_moves is None:
         messagebox.showinfo("No Solution", "This grid cannot be solved!")
@@ -188,7 +186,7 @@ def update_grid_ui():
     size = len(grid)
     for row in range(size):
         for col in range(size):
-            color = "green" if grid[row][col] == 1 else "grey"
+            color = "lightgrey" if grid[row][col] == 0 else "green"
             cell = tk.Button(grid_frame, bg=color, width=4, height=2,
                              command=lambda r=row, c=col: cell_click(r, c))
             cell.grid(row=row, column=col, padx=2, pady=2)
@@ -204,29 +202,77 @@ def update_level_display():
 # Create the main window
 root = tk.Tk()
 root.title("Discoloration Game")
+root.configure(bg="black")
+
+# Home Page Frame
+home_frame = tk.Frame(root, bg="black")
+home_frame.pack(fill="both", expand=True)
+
+# Title
+title_label = tk.Label(home_frame, text="Discoloration Game", font=("Montserrat", 24, "bold"), fg="white", bg="black")
+title_label.pack(pady=20)
+
+# Rulebook with Instructions
+instructions_label = tk.Label(home_frame, text="Welcome to the Discoloration Game!\n", font=("Montserrat", 14), fg="white", bg="black")
+instructions_label.pack(pady=5)
+instructions_label = tk.Label(home_frame, text="Instructions", font=("Montserrat", 14, "underline"), fg="white", bg="black")
+instructions_label.pack(pady=5)
+instructions_text = tk.Label(home_frame, text="1. Click on a cell to toggle its state (green or grey).\n"
+                                               "2. Clicking a cell will also toggle its neighboring cells.\n"
+                                               "3. The goal is to turn all cells green.\n"
+                                               "4. Use the 'Restart Level' button to reset the current level.\n"
+                                               "5. Use the 'Solve Level' button to get the answer.\n\n"
+                                               "Good luck!", font=("Montserrat", 12), fg="white", bg="black")
+instructions_text.pack(pady=5)
+
+# Developer Info
+dev_label = tk.Label(home_frame, text="Developed by Devansh Goel and Aditya Saigal", font=("Montserrat", 10),
+                     fg="white", bg="black")
+dev_label.pack(side=tk.BOTTOM, pady=10)
+
+# Start Game Button
+start_button = tk.Button(home_frame, text="Start Game", font=("Montserrat", 16), command=lambda: start_game(), bg="green", fg="white")
+start_button.pack(pady=20)
+
+# Game Page Frame
+game_frame = tk.Frame(root, bg="black")
+
+# Title
+title_label = tk.Label(game_frame, text="Discoloration Game", font=("Montserrat", 24, "bold"), fg="white", bg="black")
+title_label.pack(pady=20)
 
 # Level display
-level_label = tk.Label(root, text=f"Level: {level}", font=("Arial", 16))
+level_label = tk.Label(game_frame, text=f"Level: {level}", font=("Montserrat", 16), fg="white", bg="black")
 level_label.pack(pady=10)
 
 # Move counter
-move_label = tk.Label(root, text=f"Moves: {moves}", font=("Arial", 14))
+move_label = tk.Label(game_frame, text=f"Moves: {moves}", font=("Montserrat", 14), fg="white", bg="black")
 move_label.pack()
 
 # Grid container
-grid_frame = tk.Frame(root)
+grid_frame = tk.Frame(game_frame, bg="black")
 grid_frame.pack(pady=10)
 
-# Control buttons
-button_frame = tk.Frame(root)
-button_frame.pack(pady=10)
+# Control buttons for game actions
+control_frame = tk.Frame(game_frame, bg="black")
+control_frame.pack()
 
-restart_button = tk.Button(button_frame, text="Restart Level", command=restart_level, bg="#007bff", fg="white", width=15)
-restart_button.pack(side=tk.LEFT, padx=5)
+restart_button = tk.Button(control_frame, text="Restart Level", font=("Montserrat", 12), command=restart_level, bg="red", fg="white")
+restart_button.pack(side=tk.LEFT, padx=10)
 
-solve_button = tk.Button(button_frame, text="Solve Level", command=solve_level, bg="#28a745", fg="white", width=15)
-solve_button.pack(side=tk.LEFT, padx=5)
+solve_button = tk.Button(control_frame, text="Solve Level", font=("Montserrat", 12), command=solve_level, bg="blue", fg="white")
+solve_button.pack(side=tk.LEFT, padx=10)
 
-# Start the game
-initialize_grid()
+# Developer Info at the bottom of the game page
+dev_label_game = tk.Label(game_frame, text="Developed by Devansh Goel and Aditya Saigal", font=("Montserrat", 10),
+                          fg="white", bg="black")
+dev_label_game.pack(side=tk.BOTTOM, pady=10)
+
+# Function to start the game (switch from homepage to game)
+def start_game():
+    home_frame.pack_forget()  # Hide the home frame
+    game_frame.pack(fill="both", expand=True)  # Show the game frame
+    initialize_grid()  # Initialize the first level grid
+
+# Start the application
 root.mainloop()
