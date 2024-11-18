@@ -110,7 +110,7 @@ To run the Discoloration Game locally:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/discoloration-game.git
+   git clone https://github.com/Dvnsh76/Discoloration-Game.git
    ```
    
    
