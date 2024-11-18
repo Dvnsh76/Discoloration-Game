@@ -1,0 +1,54 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+#game-container {
+    display: inline-block;
+    margin-top: 30px;
+}
+
+#grid {
+    display: grid;
+    margin-top: 20px;
+    gap: 1px;  /* Adjust the value to control spacing */
+    justify-content: center;
+    max-width: 400px; /* Adjust max-width for better scaling */
+    margin: 0 auto;  /* Center the grid */
+  }
+
+  .cell {
+    width: 100px;
+    height: 100px;
+    background-color: grey;
+    border: 1px solid #000; /* Reduce border size */
+    cursor: pointer;
+  }
+
+.cell.green {
+    background-color: green;
+}
+
+#move-counter {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+#restart {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#level-display {
+    margin-bottom: 10px;
+    font-size: 18px;
+}
