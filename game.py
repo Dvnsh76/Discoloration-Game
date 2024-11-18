@@ -47,26 +47,34 @@ def bfs_solver(initial_grid):
 
 # Solve Level Function
 def solve_level():
-    global grid
+    global grid, moves
 
-    # Find the solution
     solution_moves = bfs_solver(grid)
     if solution_moves is None:
-        messagebox.showerror("Error", "No solution found.")
+        messagebox.showinfo("No Solution", "This grid cannot be solved!")
         return
 
-    # Animate the solution
-    for index, move in enumerate(solution_moves):
-        row, col = move
-        root.after(500 * index, lambda r=row, c=col: auto_click(r, c))
+    # Reset moves counter
+    moves = 0
+
+    # Perform each move with a delay
+    for index, (row, col) in enumerate(solution_moves):
+        root.after(500 * index, lambda r=row, c=col: auto_click(r, c, final=(index == len(solution_moves) - 1)))
+
 
 # Automated click function
-def auto_click(row, col):
+def auto_click(row, col, final=False):
+    global moves
+
+    # Simulate a click
     toggle_cell(row, col)
+    moves += 1
     update_grid_ui()
-    if is_level_solved():
-        messagebox.showinfo("Level Solved!", f"Solved automatically in {len(moves)} moves!")
-        next_level()
+
+    # If it's the last move, check and display success message
+    if final:
+        messagebox.showinfo("Level Solved!", f"Solved automatically in {moves} moves!")
+        next_level()  # Move to the next level
 
 # Initialize the game
 def initialize_grid():
